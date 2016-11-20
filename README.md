@@ -3,7 +3,7 @@ Framework for attacking network protocols and network exploitation.
 
 __Official Website:__ http://dedsploit.github.io
 
-![Logo](/src/logo.png)
+![Logo](/dedsploit/logo.png)
 
 ## Written for DefHacks Fall 2016 Hackathon. [More information here](https://def-hacks-fall-2016.devpost.com/)
 

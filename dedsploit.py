@@ -50,6 +50,8 @@ def main():
                 http()
             elif options == "misc":
                 misc()
+            elif options == "recon":
+                recon()
             elif options == "clear":
                 call(["clear"])
                 continue

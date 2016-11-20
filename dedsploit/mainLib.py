@@ -10,7 +10,7 @@
 ##########################################
 
 import os, sys, threading, signal, socket, smtplib, logging, random
-import yagmail, nmap, paramiko
+import nmap, paramiko
 logging. getLogger("scapy.runtime").setLevel(logging.ERROR) # STDOUT from Scapy - please stfu
 
 from time import sleep
@@ -584,7 +584,6 @@ def recon():
                                             nm.scan(str(ip), '22-443')
                                         except KeyboardInterrupt:
                                             print R + "\n[!] Interrupted! Stopping... [!]" + W
-                                            break
                                         # Output!
                                         for host in nm.all_hosts():
                                             print('----------------------------------------------------')
@@ -627,6 +626,3 @@ def recon():
         except ValueError:
             print R + "[!] Command not recognized [!]" + W
             continue
-
-def misc():
-    
